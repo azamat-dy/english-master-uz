@@ -12,32 +12,17 @@ load_dotenv()
 BOT_TOKEN, WEBAPP_URL = os.getenv("BOT_TOKEN"), os.getenv("WEBAPP_URL")
 DB = "progress.db"
 
-# ───────────────────────── AI USTOZ (Claude) ─────────────────────────
-try:
-    from anthropic import AsyncAnthropic
-except ImportError:
-    AsyncAnthropic = None
-import aiohttp, io, base64
-from datetime import date
-AI_KEY = os.getenv("ANTHROPIC_API_KEY")
-AI = AsyncAnthropic(api_key=AI_KEY) if (AI_KEY and AsyncAnthropic) else None
-GKEY = os.getenv("GEMINI_API_KEY")                       # BEPUL: aistudio.google.com/app/apikey
-GMODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
-AI_MODEL = os.getenv("AI_MODEL", "claude-haiku-5-5")
-AI_LIMIT = int(os.getenv("AI_DAILY_LIMIT", "15"))          # bepul foydalanuvchi uchun kunlik savollar
-PREMIUM = {int(x) for x in os.getenv("PREMIUM_IDS", "").split(",") if x.strip()}  # cheksiz foydalanuvchilar ID si
-HIST, USED = {}, {}
-SYS = ("You are 'English Master AI', a friendly, patient English tutor inside a Telegram bot for learners "
-       "from Beginner (A1) to Elementary (A2). ALWAYS reply in the language the student writes in "
-       "(Uzbek, Russian, English, Turkish, Arabic or any other). If unclear, use Uzbek. "
-       "Explain English lessons (grammar, vocabulary, pronunciation, reading, speaking) in simple words, "
-       "with short examples and translation into the student's language. Correct mistakes gently and show "
-       "the correct version. Keep answers concise (under ~200 words) and use simple A1-A2 English in examples. "
-       "You may help with other topics too, but steer back to learning English when natural. "
-       "Never invent facts; if unsure, say so.")
-PRESET = {
- "ai_tutor": "Hi! Introduce yourself briefly in Uzbek and ask what I want to learn today.",
- "ai_grammar": "Explain Present Simple for a beginner in Uzbek with 5 short examples and translations, then give 3 practice sentences.",
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+
+# AI Ustoz tugmasi
+ai_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(
+            text="🤖 AI Ustoz", 
+            web_app=WebAppInfo(url="https://azamat-ai.netlify.app")
+        )
+    ]
+])
  "ai_words": "Teach me 10 useful English words for beginners with Uzbek translations and one example sentence each.",
  "ai_speak": "Start a simple A1 English speaking practice with me. Ask one short question in English with its Uzbek translation and wait for my answer.",
  "ai_fix": "Explain in Uzbek that I can send you my English sentences and you will correct my mistakes. Show 2 examples of corrections.",
