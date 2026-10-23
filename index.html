@@ -1,0 +1,221 @@
+<!DOCTYPE html><html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>English Master</title>
+<style>
+:root{--bg:#0f1226;--c:#1b1f3d;--t:#fff;--a:#7c5cff;--a2:#00d4ff;--ok:#2ecc71;--no:#ff5c7c}
+@media(prefers-color-scheme:light){:root{--bg:#f2f4ff;--c:#fff;--t:#14163a}}
+*{box-sizing:border-box;font-family:system-ui,sans-serif}
+body{margin:0;background:var(--bg);color:var(--t);padding:14px 14px 90px;padding-top:max(14px,env(safe-area-inset-top))}
+.blob{position:fixed;width:240px;height:240px;border-radius:50%;filter:blur(70px);opacity:.3;z-index:-1;animation:fl 9s ease-in-out infinite}
+.b1{background:var(--a);top:-50px;left:-50px}.b2{background:var(--a2);bottom:40px;right:-60px;animation-delay:-4s}
+@keyframes fl{50%{transform:translate(40px,30px) scale(1.2)}}
+h1{margin:4px 0;animation:pop .6s}h2{margin:8px 0}@keyframes pop{from{transform:scale(.6);opacity:0}}
+.xp{display:inline-block;background:linear-gradient(90deg,var(--a),var(--a2));color:#fff;padding:4px 12px;border-radius:20px;font-weight:700}
+.s,small{opacity:.7}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.card{background:var(--c);border-radius:18px;padding:16px;opacity:0;animation:up .5s forwards;box-shadow:0 6px 18px #0003}
+.card:active,.b:active,.row:active{transform:scale(.96)}.card span{font-size:30px;display:block}.card b{display:block}
+@keyframes up{from{transform:translateY(30px)}to{opacity:1;transform:none}}
+.bar{height:8px;background:#fff2;border-radius:8px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--a),var(--a2));transition:width .6s}
+.b{width:100%;margin-top:9px;padding:13px;border:0;border-radius:14px;background:var(--c);color:var(--t);font-size:16px;text-align:left;transition:.2s}
+.b.m{background:linear-gradient(90deg,var(--a),var(--a2));color:#fff;text-align:center;font-weight:700}
+.b.ok{background:var(--ok);color:#fff;animation:pu .4s}.b.no{background:var(--no);color:#fff;animation:sh .4s}
+@keyframes pu{50%{transform:scale(1.05)}}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.row{display:flex;justify-content:space-between;align-items:center;background:var(--c);border-radius:14px;padding:12px 14px;margin-top:8px;animation:up .4s forwards;transition:.2s}
+.row.on{border-left:4px solid var(--ok)}.row button{border:0;background:none;font-size:22px;color:var(--t)}
+.big{font-size:24px;font-weight:700;margin:18px 0 6px;animation:pop .4s}.txt{background:var(--c);padding:14px;border-radius:14px;line-height:1.6;white-space:pre-line}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px #0004}
+nav button{flex:1;border:0;background:none;color:var(--t);font-size:20px;padding:4px}nav small{display:block;font-size:10px}
+.cf{position:fixed;top:-10px;font-size:24px;animation:fa 2.2s linear forwards;pointer-events:none}@keyframes fa{to{transform:translateY(105vh) rotate(540deg)}}
+nav{justify-content:space-around;padding:8px 20px calc(8px + env(safe-area-inset-bottom))}
+nav button{display:grid;place-items:center;opacity:.55;transition:.25s;padding:6px 18px;border-radius:16px}
+nav button.on{opacity:1;color:#fff;background:linear-gradient(135deg,var(--a),var(--a2));transform:translateY(-4px) scale(1.08);box-shadow:0 6px 16px #0005}
+.logo{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,var(--a),var(--a2));display:grid;place-items:center;animation:pop .6s;box-shadow:0 6px 18px #0005}
+.hd{display:flex;align-items:center;gap:12px;margin-bottom:8px}.hd h1{margin:0;font-size:22px}
+.ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:24px;margin-bottom:8px}
+.sec{background:var(--c);border-radius:18px;padding:14px;margin-top:12px;animation:up .5s forwards}
+.sw{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}.sw i{width:44px;height:44px;border-radius:50%;border:3px solid transparent;transition:.2s}.sw i.sel{border-color:var(--t);transform:scale(1.15)}
+.plan{background:var(--c);border-radius:22px;padding:18px;margin-top:14px;animation:up .5s forwards;position:relative;overflow:hidden}
+.plan.pro{border:2px solid #4da3ff;box-shadow:0 0 24px #4da3ff55}.plan.sup{border:2px solid #ffc83d;box-shadow:0 0 28px #ffc83d66;background:linear-gradient(160deg,var(--c),#3a2d0a55)}
+.plan.sup:before{content:"";position:absolute;inset:-40%;background:conic-gradient(from 0deg,transparent,#ffc83d33,transparent 30%);animation:rot 6s linear infinite;pointer-events:none}
+@keyframes rot{to{transform:rotate(360deg)}}
+.plan.banner{display:flex;gap:14px;align-items:center;background:linear-gradient(135deg,#ffc83d,#ff7a3d);color:#2b1a00}.plan.banner small{color:#2b1a00}
+.pl{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;background:#ffffff22}.plan.pro .pl{background:#4da3ff33}.plan.sup .pl{background:#ffc83d33}
+.pr{font-size:28px;font-weight:800;margin:4px 0}.plan ul{list-style:none;padding:0;margin:10px 0}.plan li{padding:4px 0}
+.ct{text-align:center;padding:22px}.ph{font-size:26px;font-weight:800;letter-spacing:1px;margin:10px 0;background:linear-gradient(90deg,var(--a),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+a.b{display:block;text-decoration:none;text-align:center;color:inherit}
+.gm{animation:none!important;opacity:1!important;text-align:center;min-height:72px;display:grid;place-items:center;font-size:15px;transition:.25s}.gm.op{background:var(--a)!important;color:#fff;transform:rotateY(8deg)}.gm.dn{background:var(--ok)!important;color:#fff}
+.in{width:100%;padding:13px;border:0;border-radius:14px;background:var(--c);color:var(--t);font-size:16px;margin:8px 0}
+.logo.ai{background:linear-gradient(135deg,#7c5cff,#ff5c9a,#00d4ff);background-size:200% 200%;animation:pop .6s,gl 4s linear infinite}@keyframes gl{50%{background-position:100% 50%}}</style></head><body>
+<div class="blob b1"></div><div class="blob b2"></div><div id="app"></div>
+<nav><button data-t="home" class="on" onclick="nav('home')">${H}</button><button data-t="contact" onclick="nav('contact')">${C}</button><button data-t="settings" onclick="nav('settings')">${G}</button></nav>
+<script>
+const tg=window.Telegram?.WebApp;tg?.ready();tg?.expand();
+const P=s=>s.split(";").map(x=>x.split("="));
+const W={
+"👨‍👩‍👧 Oila":P("mother=ona;father=ota;brother=aka/uka;sister=opa/singil;grandmother=buvi;grandfather=bobo;son=o'g'il;daughter=qiz;husband=er;wife=xotin;uncle=amaki;aunt=xola/amma;cousin=amakivachcha;baby=chaqaloq;child=bola;parents=ota-ona;family=oila;friend=do'st;neighbour=qo'shni;boy=o'g'il bola;girl=qiz bola;man=erkak;woman=ayol;people=odamlar;name=ism"),
+"🍎 Ovqat":P("bread=non;rice=guruch;meat=go'sht;fish=baliq;egg=tuxum;milk=sut;water=suv;tea=choy;coffee=kofe;apple=olma;banana=banan;orange=apelsin;grape=uzum;potato=kartoshka;tomato=pomidor;onion=piyoz;carrot=sabzi;cheese=pishloq;butter=sariyog';sugar=shakar;salt=tuz;soup=sho'rva;chicken=tovuq;juice=sharbat;breakfast=nonushta"),
+"🏠 Uy":P("house=uy;room=xona;kitchen=oshxona;bathroom=hammom;bedroom=yotoqxona;door=eshik;window=deraza;table=stol;chair=stul;bed=karavot;sofa=divan;lamp=chiroq;floor=pol;wall=devor;roof=tom;garden=bog';key=kalit;clock=soat;mirror=oyna;carpet=gilam;fridge=muzlatgich;phone=telefon;television=televizor;computer=kompyuter;book=kitob"),
+"🏃 Fe'llar":P("go=bormoq;come=kelmoq;eat=yemoq;drink=ichmoq;sleep=uxlamoq;read=o'qimoq;write=yozmoq;speak=gapirmoq;listen=tinglamoq;see=ko'rmoq;look=qaramoq;walk=yurmoq;run=yugurmoq;work=ishlamoq;study=o'rganmoq;play=o'ynamoq;buy=sotib olmoq;sell=sotmoq;give=bermoq;take=olmoq;open=ochmoq;close=yopmoq;love=sevmoq;like=yoqtirmoq;want=xohlamoq;need=kerak bo'lmoq"),
+"✨ Sifatlar":P("big=katta;small=kichik;good=yaxshi;bad=yomon;new=yangi;old=eski/qari;hot=issiq;cold=sovuq;happy=xursand;sad=xafa;fast=tez;slow=sekin;easy=oson;difficult=qiyin;beautiful=chiroyli;tall=baland;short=past/qisqa;long=uzun;cheap=arzon;expensive=qimmat;clean=toza;dirty=iflos;young=yosh;strong=kuchli;tired=charchagan"),
+"⏰ Vaqt":P("today=bugun;tomorrow=ertaga;yesterday=kecha;morning=ertalab;afternoon=tushdan keyin;evening=kech;night=tun;week=hafta;month=oy;year=yil;hour=soat;minute=daqiqa;Monday=dushanba;Tuesday=seshanba;Wednesday=chorshanba;Thursday=payshanba;Friday=juma;Saturday=shanba;Sunday=yakshanba;always=doim;never=hech qachon;often=tez-tez;sometimes=ba'zan;now=hozir;early=erta"),
+"🎨 Rang va son":P("red=qizil;blue=ko'k;green=yashil;yellow=sariq;black=qora;white=oq;pink=pushti;brown=jigarrang;grey=kulrang;one=bir;two=ikki;three=uch;four=to'rt;five=besh;six=olti;seven=yetti;eight=sakkiz;nine=to'qqiz;ten=o'n;twenty=yigirma;hundred=yuz;thousand=ming;first=birinchi;second=ikkinchi"),
+"🏙 Shahar":P("city=shahar;street=ko'cha;shop=do'kon;market=bozor;school=maktab;hospital=kasalxona;bank=bank;park=park;airport=aeroport;station=vokzal;bus=avtobus;car=mashina;train=poyezd;plane=samolyot;taxi=taksi;road=yo'l;bridge=ko'prik;restaurant=restoran;hotel=mehmonxona;museum=muzey;library=kutubxona;pharmacy=dorixona;ticket=chipta;map=xarita;passport=pasport"),
+"🩺 Tana":P("head=bosh;eye=ko'z;ear=quloq;nose=burun;mouth=og'iz;hand=qo'l;finger=barmoq;leg=oyoq;foot=oyoq kafti;back=orqa;stomach=qorin;heart=yurak;tooth=tish;hair=soch;face=yuz;doctor=shifokor;medicine=dori;pain=og'riq;ill=kasal;healthy=sog'lom;headache=bosh og'rig'i;fever=isitma;cough=yo'tal;nurse=hamshira;body=tana"),
+"💼 Ish va o'qish":P("teacher=o'qituvchi;student=talaba;pupil=o'quvchi;lesson=dars;homework=uyga vazifa;exam=imtihon;pen=ruchka;pencil=qalam;notebook=daftar;word=so'z;question=savol;answer=javob;job=ish;office=ofis;boss=boshliq;money=pul;salary=maosh;company=kompaniya;engineer=muhandis;driver=haydovchi;cook=oshpaz;worker=ishchi;farmer=fermer;language=til;English=ingliz tili")};
+const L=[
+{t:"1. To be (am/is/are)",b:"I am — men ...man\nYou/We/They are\nHe/She/It is\n\nInkor: I am not, he is not (isn't)\nSo'roq: Are you a student?",e:[["I am a student.","Men talabaman."],["She is my teacher.","U mening o'qituvchim."],["We are from Uzbekistan.","Biz O'zbekistondanmiz."]]},
+{t:"2. Present Simple",b:"Odatiy ish-harakat.\nI/you/we/they + fe'l: I work\nHe/she/it + fe'l+s: she works\nInkor: don't / doesn't\nSo'roq: Do you...? Does she...?\nSo'zlar: always, usually, often, sometimes, never",e:[["I wake up at seven.","Men soat yettida uyg'onaman."],["She studies English every day.","U har kuni ingliz tili o'qiydi."],["Do you like tea?","Choyni yoqtirasizmi?"]]},
+{t:"3. There is/are & Can",b:"There is + birlik: There is a book.\nThere are + ko'plik: There are two books.\n\nCan — qila olmoq:\nI can swim. I can't swim. Can you swim?",e:[["There is a park near my house.","Uyim yaqinida park bor."],["There are three apples on the table.","Stolda uchta olma bor."],["I can speak English a little.","Men ozgina inglizcha gapira olaman."]]},
+{t:"4. Past Simple",b:"O'tgan zamon.\nTo'g'ri fe'l: +ed (worked, played)\nNoto'g'ri: go→went, eat→ate, see→saw, buy→bought, have→had, be→was/were\nInkor: didn't + fe'l\nSo'roq: Did you...?",e:[["Yesterday I went to the market.","Kecha bozorga bordim."],["We watched a film last night.","Kecha kechqurun film ko'rdik."],["Did you eat breakfast?","Nonushta qildingizmi?"]]},
+{t:"5. Kelasi zamon",b:"will + fe'l: I will call you.\nbe going to + fe'l: reja — I'm going to travel.\nInkor: won't / am not going to\nSo'zlar: tomorrow, next week, soon",e:[["I will call you tomorrow.","Ertaga sizga qo'ng'iroq qilaman."],["I'm going to visit Samarkand.","Samarqandga bormoqchiman."],["It will be hot tomorrow.","Ertaga issiq bo'ladi."]]},
+{t:"6. Taqqoslash",b:"Qisqa so'z + er: tall → taller than\nUzun so'z: more expensive than\nEng: tallest / the most beautiful\nNoto'g'ri: good → better → best, bad → worse → worst",e:[["Tashkent is bigger than my town.","Toshkent mening shaharchamdan katta."],["This hotel is cheaper than that one.","Bu mehmonxona anavidan arzon."],["She is the best student in class.","U sinfdagi eng yaxshi o'quvchi."]]}];
+const D=[
+{t:"👋 Tanishuv",l:[["Hello! My name is Ali.","Salom! Mening ismim Ali."],["Nice to meet you. I'm Anna.","Tanishganimdan xursandman. Men Annaman."],["Where are you from?","Siz qayerdansiz?"],["I'm from Uzbekistan. And you?","Men O'zbekistondanman. Siz-chi?"]]},
+{t:"🛒 Do'konda",l:[["Hello, can I help you?","Salom, yordam bera olamanmi?"],["Yes, I want some bread and milk.","Ha, menga non va sut kerak."],["Here you are. It's five dollars.","Marhamat. Besh dollar."],["Thank you. Goodbye!","Rahmat. Xayr!"]]},
+{t:"🍽 Restoranda",l:[["Good evening. A table for two, please.","Xayrli kech. Ikki kishilik stol, iltimos."],["What would you like to drink?","Nima ichasiz?"],["Tea for me and water for her.","Menga choy, unga suv."],["Can I have the bill, please?","Hisobni olsam bo'ladimi?"]]},
+{t:"🩺 Shifokorda",l:[["What's the problem?","Nima bo'ldi?"],["I have a headache and a fever.","Boshim og'riydi va isitmam bor."],["Take this medicine twice a day.","Bu dorini kuniga ikki marta iching."],["Thank you, doctor.","Rahmat, shifokor."]]},
+{t:"🧭 Yo'l so'rash",l:[["Excuse me, where is the station?","Kechirasiz, vokzal qayerda?"],["Go straight and turn left.","To'g'ri yuring va chapga buring."],["Is it far from here?","Bu yerdan uzoqmi?"],["No, it's five minutes by bus.","Yo'q, avtobusda besh daqiqa."]]}];
+Object.assign(W,{
+"✈️ Sayohat":P("luggage=yuk;suitcase=chamadon;flight=reys;departure=jo'nash;arrival=kelish;reservation=bron;customs=bojxona;visa=viza;tourist=sayyoh;guide=gid;journey=sayohat;trip=safar;seat=o'rindiq;gate=chiqish darvozasi;delay=kechikish;cancel=bekor qilmoq;book=bron qilmoq;pack=yig'moq;land=qo'nmoq;abroad=chet elda;foreign=xorijiy;single room=bir kishilik xona;double room=ikki kishilik xona;reception=qabulxona;view=manzara"),
+"👕 Kiyim va xarid":P("shirt=ko'ylak(erkak);dress=libos;trousers=shim;jeans=jinsi;skirt=yubka;jacket=kurtka;coat=palto;hat=shlyapa;cap=kepka;shoes=poyabzal;boots=etik;socks=paypoq;gloves=qo'lqop;scarf=sharf;belt=kamar;bag=sumka;pocket=cho'ntak;size=o'lcham;try on=kiyib ko'rmoq;wear=kiymoq;fit=mos kelmoq;discount=chegirma;price=narx;cash=naqd pul;change=qaytim"),
+"🌦 Tabiat":P("weather=ob-havo;sun=quyosh;moon=oy;star=yulduz;sky=osmon;cloud=bulut;rain=yomg'ir;snow=qor;wind=shamol;storm=bo'ron;fog=tuman;river=daryo;lake=ko'l;sea=dengiz;mountain=tog';forest=o'rmon;desert=cho'l;island=orol;tree=daraxt;flower=gul;grass=o't;spring=bahor;summer=yoz;autumn=kuz;winter=qish"),
+"🐾 Hayvonlar":P("dog=it;cat=mushuk;horse=ot;cow=sigir;sheep=qo'y;goat=echki;donkey=eshak;camel=tuya;lion=sher;tiger=yo'lbars;bear=ayiq;wolf=bo'ri;fox=tulki;rabbit=quyon;monkey=maymun;elephant=fil;bird=qush;duck=o'rdak;snake=ilon;mouse=sichqon;frog=baqa;bee=ari;butterfly=kapalak;spider=o'rgimchak;insect=hasharot"),
+"💻 Texnologiya":P("internet=internet;website=veb-sayt;password=parol;message=xabar;email=elektron pochta;screen=ekran;keyboard=klaviatura;camera=kamera;battery=batareya;charger=zaryadlovchi;download=yuklab olmoq;upload=yuklamoq;search=qidirmoq;click=bosmoq;app=ilova;video=video;photo=surat;file=fayl;link=havola;network=tarmoq;online=onlayn;offline=oflayn;social media=ijtimoiy tarmoq;laptop=noutbuk;headphones=quloqchin"),
+"😊 Xarakter":P("angry=jahldor;afraid=qo'rqqan;surprised=hayron;bored=zerikkan;excited=hayajonlangan;nervous=asabiy;proud=faxrlangan;lonely=yolg'iz;kind=mehribon;polite=muloyim;rude=qo'pol;honest=halol;brave=jasur;lazy=dangasa;clever=aqlli;funny=kulgili;serious=jiddiy;shy=uyatchan;generous=saxiy;patient=sabrli;careful=ehtiyotkor;busy=band;free=bo'sh;ready=tayyor;sure=ishonchli"),
+"⚡ Fe'llar 2":P("arrive=yetib kelmoq;leave=ketmoq;begin=boshlamoq;finish=tugatmoq;help=yordam bermoq;ask=so'ramoq;reply=javob bermoq;remember=eslamoq;forget=unutmoq;understand=tushunmoq;learn=o'rganmoq;teach=o'rgatmoq;choose=tanlamoq;decide=qaror qilmoq;try=urinmoq;wait=kutmoq;meet=uchrashmoq;call=qo'ng'iroq qilmoq;send=yubormoq;carry=ko'tarib yurmoq;build=qurmoq;break=sindirmoq;find=topmoq;lose=yo'qotmoq;win=yutmoq;pay=to'lamoq"),
+"👷 Kasblar":P("lawyer=advokat;judge=sudya;policeman=politsiyachi;soldier=askar;pilot=uchuvchi;waiter=ofitsiant;baker=novvoy;builder=quruvchi;tailor=tikuvchi;barber=sartarosh;dentist=tish shifokori;scientist=olim;artist=rassom;singer=qo'shiqchi;actor=aktyor;writer=yozuvchi;journalist=jurnalist;accountant=buxgalter;manager=menejer;salesman=sotuvchi;mechanic=mexanik;electrician=elektrchi;programmer=dasturchi;guard=qo'riqchi;businessman=tadbirkor"),
+"🔗 Predlog va bog'lovchi":P("in=ichida;on=ustida;at=da(joy/vaqt);under=ostida;between=orasida;behind=orqasida;next to=yonida;in front of=oldida;near=yaqin;far=uzoq;because=chunki;but=lekin;and=va;or=yoki;so=shuning uchun;if=agar;when=qachonki;before=oldin;after=keyin;during=davomida;until=...gacha;with=bilan;without=siz;about=haqida;for=uchun"),
+"⚽ Sport va hobbi":P("football=futbol;basketball=basketbol;tennis=tennis;swimming=suzish;running=yugurish;cycling=velosiped haydash;chess=shaxmat;music=musiqa;painting=rasm chizish;cooking=pazandalik;reading=kitob o'qish;dancing=raqs;singing=qo'shiq aytish;fishing=baliq ovlash;hiking=tog' sayri;gym=sport zali;team=jamoa;match=o'yin;player=o'yinchi;coach=murabbiy;goal=gol;winner=g'olib;holiday=bayram;party=ziyofat;hobby=sevimli mashg'ulot")});
+L.push(
+{t:"7. Present Continuous",b:"Hozir davom etayotgan ish.\nam/is/are + fe'l+ing\nI am reading. She is cooking. They are playing.\nInkor: is not (isn't) working\nSo'roq: Are you listening?\nSo'zlar: now, at the moment, today",e:[["I am learning English now.","Men hozir ingliz tilini o'rganyapman."],["She is cooking dinner.","U kechki ovqat pishiryapti."],["Are they playing football?","Ular futbol o'ynayaptimi?"]]},
+{t:"8. Present Perfect",b:"have/has + 3-shakl (V3)\nI have seen. She has gone.\nIshlatiladi: tajriba (ever, never), natija (already, just, yet)\nV3: go→gone, see→seen, eat→eaten, be→been\nHave you ever been to London?",e:[["I have never seen snow.","Men hech qachon qor ko'rmaganman."],["She has already finished.","U allaqachon tugatdi."],["Have you ever eaten sushi?","Hech sushi yeganmisiz?"]]},
+{t:"9. Must / Should / Have to",b:"must — majburiyat: You must wear a seat belt.\nmustn't — taqiq: You mustn't smoke.\nshould — maslahat: You should sleep more.\nhave to — tashqi majburiyat: I have to work on Monday.\ndon't have to — shart emas",e:[["You should drink more water.","Ko'proq suv ichishingiz kerak."],["I have to get up early.","Men erta turishim kerak."],["You mustn't park here.","Bu yerga to'xtash mumkin emas."]]},
+{t:"10. Artikl va miqdor",b:"a — undosh bilan: a book\nan — unli bilan: an apple\nthe — aniq narsa: the sun\n\nSanaladigan: many, a few — many books\nSanalmaydigan: much, a little — much water\nsome — darak gap, any — inkor/so'roq",e:[["I need an umbrella.","Menga soyabon kerak."],["How much sugar do you want?","Qancha shakar xohlaysiz?"],["Do you have any questions?","Savollaringiz bormi?"]]},
+{t:"11. Shartli gaplar",b:"Zero: if + hozirgi, hozirgi — umumiy haqiqat\nIf you heat ice, it melts.\nFirst: if + hozirgi, will + fe'l — real kelajak\nIf it rains, I will stay at home.\nSecond: if + o'tgan, would + fe'l — xayol\nIf I had money, I would travel.",e:[["If you study, you will pass.","O'qisangiz, o'tasiz."],["If I were rich, I would buy a house.","Boy bo'lsam, uy sotib olardim."],["If it is sunny, we will go out.","Quyoshli bo'lsa, tashqariga chiqamiz."]]},
+{t:"12. Predloglar",b:"Vaqt: at 5 o'clock · on Monday · in July / in 2024\nJoy: at school · in the room · on the table\nHarakat: to the park · from Tashkent\nBoshqa: next to, between, behind, in front of\nIbora: interested in, good at, afraid of, listen to",e:[["The lesson starts at nine.","Dars to'qqizda boshlanadi."],["I'm good at maths.","Men matematikadan kuchliman."],["The bank is next to the school.","Bank maktab yonida."]]});
+D.push(
+{t:"📞 Telefonda",l:[["Hello, can I speak to Mr Brown?","Salom, janob Braun bilan gaplashsam bo'ladimi?"],["Sorry, he is not here right now.","Kechirasiz, u hozir yo'q."],["Can I leave a message?","Xabar qoldirsam bo'ladimi?"],["Sure. Please call me back at six.","Albatta. Soat oltida menga qayta qo'ng'iroq qiling."]]},
+{t:"🏨 Mehmonxonada",l:[["Good afternoon. I have a reservation.","Xayrli kun. Menda bron bor."],["What is your name, please?","Ismingiz nima?"],["A single room for three nights.","Uch kechaga bir kishilik xona."],["Breakfast is from seven to ten.","Nonushta soat yettidan o'ngacha."]]},
+{t:"💼 Ish suhbati",l:[["Tell me about yourself.","O'zingiz haqingizda gapirib bering."],["I am a programmer with two years of experience.","Men ikki yillik tajribali dasturchiman."],["Why do you want this job?","Nega bu ishni xohlaysiz?"],["I want to learn and grow in your company.","Kompaniyangizda o'rganmoqchi va o'smoqchiman."]]});
+const GQ=`She ___ to school every day.|go|goes|going|1|he/she/it + fe'l+s: goes.
+They ___ football now.|play|plays|are playing|2|Hozir davom etayotgan ish: are playing.
+I ___ my homework yesterday.|do|did|doing|1|O'tgan zamon: did.
+He ___ a car.|don't have|doesn't have|isn't have|1|he → doesn't + have.
+There ___ some milk in the fridge.|is|are|be|0|Sanalmaydigan ot (milk) → is.
+How ___ apples do you want?|much|many|few|1|Sanaladigan ot → many.
+I have ___ money.|any|a few|a little|2|Sanalmaydigan ot, ijobiy gap: a little.
+She is ___ than her sister.|tall|taller|tallest|1|than oldidan -er.
+This is ___ interesting book I know.|more|the most|most|1|Eng daraja: the most.
+We ___ to Paris next month.|are going|went|go|0|Reja: be going to.
+If it rains, I ___ at home.|stay|will stay|stayed|1|First conditional: if + hozirgi, will + fe'l.
+You ___ wear a seat belt.|must|can|may|0|Majburiyat: must.
+I have ___ finished my work.|already|yesterday|ago|0|Present Perfect bilan already.
+She has ___ to London twice.|go|went|been|2|have/has + been.
+___ you ever eaten sushi?|Did|Have|Do|1|Tajriba: Have you ever...?
+He was born ___ 1999.|on|at|in|2|Yil oldidan in.
+The meeting is ___ Monday.|in|on|at|1|Kun oldidan on.
+I get up ___ seven o'clock.|at|on|in|0|Soat oldidan at.
+My phone is ___ the table.|in|on|at|1|Ustida: on.
+I'm interested ___ music.|in|on|at|0|interested in.`.split("\n").map(x=>x.split("|"));
+function gq(){const qs=R(GQ).slice(0,10).map(g=>({q:g[0],o:R(g.slice(1,4)),a:g[1+ +g[4]],x:g[5],h:"Grammatika: to'g'ri variantni tanlang"}));run(qs,0,[])}
+const PH=[...D.flatMap(d=>d.l),...L.flatMap(l=>l.e)];
+const A=document.getElementById("app");
+let S={xp:0,k:{}};try{S=JSON.parse(localStorage.em)||S}catch(e){}
+const sv=()=>{try{localStorage.em=JSON.stringify(S)}catch(e){}};
+const AU=new Audio();
+const sf=(t,cb)=>{try{const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.85;u.onend=()=>cb&&cb();speechSynthesis.speak(u)}catch(e){cb&&cb()}};
+const say=(t,cb)=>{try{speechSynthesis.cancel()}catch(e){}try{AU.pause();AU.onended=()=>cb&&cb();AU.onerror=()=>sf(t,cb);AU.src="https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q="+encodeURIComponent(t);const p=AU.play();p&&p.catch(()=>sf(t,cb))}catch(e){sf(t,cb)}};
+const sayL=t=>{const q=t.match(/[^.!?]+[.!?]*/g)||[t];let n=0;const go=()=>{if(n<q.length)say(q[n++].trim(),()=>setTimeout(go,300))};go()};
+const R=a=>[...a].sort(()=>Math.random()-.5);
+const tot=Object.values(W).flat().length,nk=()=>Object.keys(S.k).length,ks=Object.keys(W);
+
+function cf(){for(let i=0;i<30;i++){const e=document.createElement("div");e.className="cf";e.textContent=["🎉","⭐","✨","🎊"][i%4];e.style.left=Math.random()*100+"vw";e.style.animationDelay=Math.random()+"s";document.body.appendChild(e);setTimeout(()=>e.remove(),3500)}}
+
+function words(){A.innerHTML=`<h2>📖 So'zlar (${tot})</h2><div class=grid>${ks.map((k,i)=>`<div class=card style="animation-delay:${i*.05}s" onclick="cat(${i})"><b>${k}</b><small>${W[k].filter(w=>S.k[w[0]]).length}/${W[k].length}</small></div>`).join("")}</div>`}
+function cat(i){const k=ks[i];A.innerHTML=`<h2>${k}</h2><button class=b onclick="words()">⬅️ Orqaga</button>${W[k].map((w,j)=>`<div class="row ${S.k[w[0]]?"on":""}"><div onclick="say('${w[0]}')"><b>${w[0]}</b> 🔊<br><small>${w[1]}</small></div><button onclick="kn(${i},${j},this)">${S.k[w[0]]?"✅":"○"}</button></div>`).join("")}`}
+function kn(i,j,b){const w=W[ks[i]][j][0];if(S.k[w])delete S.k[w];else{S.k[w]=1;ok(2)}sv();b.textContent=S.k[w]?"✅":"○";b.parentNode.classList.toggle("on")}
+function lessons(){A.innerHTML=`<h2>📚 Darslar</h2>${L.map((l,i)=>`<div class=row onclick="les(${i})"><b>${l.t}</b>➡️</div>`).join("")}`}
+function les(i){const l=L[i];ok(5);A.innerHTML=`<button class=b onclick="lessons()">⬅️ Orqaga</button><h2>${l.t}</h2><div class=txt>${l.b}</div><h3>Misollar</h3>${l.e.map(e=>`<div class=row onclick="say(this.dataset.t)" data-t="${e[0]}"><div><b>${e[0]}</b> 🔊<br><small>${e[1]}</small></div></div>`).join("")}`}
+function listen(){A.innerHTML=`<h2>🎧 Tinglash</h2>${D.map((d,i)=>`<div class=row onclick="dl(${i})"><b>${d.t}</b>▶️</div>`).join("")}`}
+function dl(i){const d=D[i];A.innerHTML=`<button class=b onclick="listen()">⬅️ Orqaga</button><h2>${d.t}</h2><button class="b m" onclick="pa(${i})">▶️ Hammasini tinglash</button>${d.l.map(e=>`<div class=row onclick="say(this.dataset.t)" data-t="${e[0]}"><div><b>${e[0]}</b> 🔊<br><small>${e[1]}</small></div></div>`).join("")}`;ok(5)}
+function pa(i){const q=D[i].l.map(x=>x[0]);let n=0;const go=()=>{if(n<q.length)say(q[n++],()=>setTimeout(go,400))};go()}
+function speak(){A.innerHTML=`<h2>🎤 Speaking</h2><p class=s>Gapni tinglang, so'ng takrorlang</p>${PH.map((p,i)=>`<div class=row onclick="sp(${i})"><div><b>${p[0]}</b><br><small>${p[1]}</small></div>🎤</div>`).join("")}`}
+function sp(i){const p=PH[i];A.innerHTML=`<button class=b onclick="speak()">⬅️ Orqaga</button><div class=big>${p[0]}</div><p class=s>${p[1]}</p><button class="b m" onclick="say(PH[${i}][0])">🔊 Tinglash</button><button class="b m" onclick="rc(${i})">🎙 Takrorlash</button><button class=b onclick="aio('ai_speak')">🤖 AI ustozga ovoz yuborib tekshirtirish</button><div id=res></div><button class=b onclick="sp(${(i+1)%PH.length})">Keyingisi ➡️</button>`}
+function rc(i){const SR=window.SpeechRecognition||window.webkitSpeechRecognition,o=document.getElementById("res");
+if(!SR){o.innerHTML=`<p>Bu qurilma ovozni tekshirmaydi. Botga ovozli xabar yuborib AI ustozdan tekshirtiring:</p><button class="b m" onclick="aio('ai_speak')">🤖 Botda tekshirtirish</button><button class="b m" onclick="ok(10);this.textContent='✅ +10 XP'">✅ Ayttim</button>`;return}
+o.textContent="🎧 Tinglayapman...";const r=new SR();r.lang="en-US";
+r.onresult=e=>{const t=e.results[0][0].transcript.toLowerCase(),a=PH[i][0].toLowerCase().replace(/[^a-z ]/g,"").split(" "),pc=Math.round(a.filter(w=>t.includes(w)).length/a.length*100);o.innerHTML=`<h2>${pc>=70?"🏆":"💪"} ${pc}%</h2><small>Siz: ${t}</small>`;ok(Math.round(pc/5));if(pc>=70)cf()};
+r.onerror=()=>o.textContent="Eshitilmadi, qayta urining";r.start()}
+function test(){A.innerHTML=`<h2>📝 Testlar</h2><p class=s>10 savol · oxirida kalitlar</p><button class="b m" onclick="qz(-1)">🎲 Aralash so'z testi</button><button class="b m" onclick="gq()">🧠 Grammatika testi (${GQ.length} savol)</button>${ks.map((k,i)=>`<div class=row onclick="qz(${i})"><b>${k}</b>➡️</div>`).join("")}`}
+function qz(i){const pool=i<0?Object.values(W).flat():W[ks[i]];
+const qs=R(pool).slice(0,10).map(w=>{const d=Math.random()<.5,o=R([w,...R(pool.filter(x=>x!==w)).slice(0,3)]);return{q:d?w[0]:w[1],a:d?w[1]:w[0],o:o.map(x=>d?x[1]:x[0]),d}});run(qs,0,[])}
+function run(qs,n,wr){if(n==qs.length)return end(qs,wr);const q=qs[n];
+A.innerHTML=`<div class=bar><i style="width:${n*10}%"></i></div><p class=s>${n+1}/${qs.length} · ${q.h||(q.d?"O'zbekchasi?":"Inglizchasi?")}</p><div class=big>${q.q}</div>${q.o.map(o=>`<button class=b data-o="${o}">${o}</button>`).join("")}`;
+A.querySelectorAll("button[data-o]").forEach(b=>b.onclick=()=>{const g=b.dataset.o==q.a;b.classList.add(g?"ok":"no");tg?.HapticFeedback?.notificationOccurred(g?"success":"error");A.querySelectorAll("button").forEach(x=>x.disabled=true);if(!g)wr.push(q);setTimeout(()=>run(qs,n+1,wr),700)})}
+function end(qs,wr){const s=qs.length-wr.length;ok(s*3);A.innerHTML=`<h1>${s>=8?"🏆":"👍"} ${s}/${qs.length}</h1><p>+${s*3} XP</p>${wr.length?`<h3>🔑 Xatolar kaliti:</h3>${wr.map(q=>`<div class=row><div>${q.q}<br><b>✅ ${q.a}</b>${q.x?"<br><small>"+q.x+"</small>":""}</div></div>`).join("")}`:"<p>Hammasi to'g'ri! 🎉</p>"}<button class="b m" onclick="test()">Davom etish ➡️</button>`;if(s>=8)cf()}
+function more(){A.innerHTML=`<h2>📕 Darsliklar</h2>${[["British Council LearnEnglish","https://learnenglish.britishcouncil.org/skills"],["Cambridge English","https://www.cambridgeenglish.org/learning-english/"],["BBC Learning English","https://www.bbc.co.uk/learningenglish"],["Oxford Online English","https://www.oxfordonlineenglish.com/free-english-lessons"]].map(x=>`<a class=row style="color:inherit;text-decoration:none" href="${x[1]}" target=_blank><b>📘 ${x[0]}</b>↗</a>`).join("")}`}
+const SV=(p,w=26)=>`<svg viewBox="0 0 24 24" width="${w}" height="${w}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const IC={home:SV('<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>'),
+phone:SV('<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>'),
+gear:SV('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3 1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8 1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
+star:`<svg viewBox="0 0 24 24" width="32" height="32" fill="#4da3ff"><path d="M12 2l3 6.5 7 .9-5.2 4.8 1.4 7L12 17.8 5.8 21.2l1.4-7L2 9.4l7-.9z"/></svg>`,
+crown:`<svg viewBox="0 0 24 24" width="32" height="32" fill="#ffc83d"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z"/></svg>`,
+cap:`<svg viewBox="0 0 24 24" width="34" height="34" fill="#fff"><path d="M12 3L1 9l11 6 9-4.9V17h2V9z"/><path d="M5 13.2V17c0 1.7 3.1 3 7 3s7-1.3 7-3v-3.8l-7 3.8z"/></svg>`};
+const TH={dark:["#0f1226","#1b1f3d","#fff","#7c5cff","#00d4ff"],light:["#f2f4ff","#fff","#14163a","#7c5cff","#00b4e6"],purple:["#1a0b2e","#2d1650","#fff","#c04cff","#ff7ac6"],green:["#08201a","#0f3a2e","#fff","#2ecc71","#00d4aa"],ocean:["#04172b","#0a2d4d","#fff","#00a8ff","#00e5ff"],sunset:["#2a0f12","#4a1d22","#fff","#ff6a3d","#ffc83d"]};
+const T={uz:{home:"Bosh sahifa",settings:"Sozlamalar",contact:"Bog'lanish",words:"So'zlar",lessons:"Darslar",listen:"Tinglash",speak:"Speaking",test:"Testlar",books:"Darsliklar",bg:"Fon rangi",lang:"Til",prem:"Premium obuna",buy:"Sotib olish",call:"Qo'ng'iroq qilish",copy:"Raqamni nusxalash",cmsg:"Savol yoki taklif bormi? Yozing!",reset:"Natijalarni tozalash"},
+en:{home:"Home",settings:"Settings",contact:"Contact",words:"Words",lessons:"Lessons",listen:"Listening",speak:"Speaking",test:"Tests",books:"Textbooks",bg:"Background",lang:"Language",prem:"Premium",buy:"Buy now",call:"Call",copy:"Copy number",cmsg:"Questions or ideas? Write to us!",reset:"Reset progress"},
+ru:{home:"Главная",settings:"Настройки",contact:"Связь",words:"Слова",lessons:"Уроки",listen:"Аудирование",speak:"Говорение",test:"Тесты",books:"Учебники",bg:"Фон",lang:"Язык",prem:"Премиум",buy:"Купить",call:"Позвонить",copy:"Копировать номер",cmsg:"Есть вопросы? Пишите!",reset:"Сбросить прогресс"}};
+const tr=k=>(T[S.lg]||T.uz)[k]||T.uz[k];
+function ap(){const r=document.documentElement.style,t=TH[S.th];["--bg","--c","--t","--a","--a2"].forEach((v,i)=>t?r.setProperty(v,t[i]):r.removeProperty(v))}
+const PL=[{n:"Pro",p:"10 000",c:"pro",i:IC.star,f:["Reklamasiz o'qish","Barcha testlar va kalitlar","Yangi darslarga birinchi kirish"]},
+{n:"Super",p:"30 000",c:"sup",i:IC.crown,f:["Pro'ning barcha imkoniyatlari","Speaking uchun shaxsiy tekshiruv","O'qituvchiga savol berish","Shaxsiy o'quv reja"]}];
+const GR=[["#7c5cff","#00d4ff"],["#ff6a3d","#ffc83d"],["#2ecc71","#00d4aa"],["#ff5c9a","#c04cff"],["#00a8ff","#7c5cff"],["#ffc83d","#ff7a3d"]];
+function contact(){A.innerHTML=`<div class="sec ct"><div class=logo style="margin:0 auto">${IC.phone}</div><h2>${tr("contact")}</h2><p class=s>${tr("cmsg")}</p><div class=ph>+998 99 083 26 96</div><a class="b m" href="tel:+998990832696">📞 ${tr("call")}</a><button class=b onclick="cp()">📋 ${tr("copy")}</button><button class="b m" onclick="tgo('Salom!')">✈️ Telegram: @muhammadjonov001</button></div>`}
+function cp(){try{navigator.clipboard.writeText("+998990832696");tg?.HapticFeedback?.notificationOccurred("success")}catch(e){}}
+function tgo(m){const u="https://t.me/muhammadjonov001?text="+encodeURIComponent(m);tg?.openTelegramLink?tg.openTelegramLink(u):window.open(u,"_blank")}
+function buy(n){tgo("Salom! English Master "+n+" obunasini sotib olmoqchiman.")}
+function settings(){const o=["",...Object.keys(TH)];A.innerHTML=`<h2>${IC.gear.replace(/26/g,22)} ${tr("settings")}</h2>
+<div class=sec><b>🎨 ${tr("bg")}</b><div class=sw>${o.map(k=>`<i class="${(S.th||"")==k?"sel":""}" style="background:${k?`linear-gradient(135deg,${TH[k][0]} 50%,${TH[k][3]} 50%)`:"linear-gradient(135deg,#0f1226 50%,#f2f4ff 50%)"}" onclick="st('${k}')"></i>`).join("")}</div></div>
+<div class=sec><b>🌐 ${tr("lang")}</b>${[["uz","🇺🇿 O'zbekcha"],["en","🇬🇧 English"],["ru","🇷🇺 Русский"]].map(l=>`<button class="b ${(S.lg||"uz")==l[0]?"m":""}" onclick="sl('${l[0]}')">${l[1]}</button>`).join("")}</div>
+${bdg()}<div class="plan banner" onclick="nav('premium')"><div class=pl>${IC.crown}</div><div><b>${tr("prem")}</b><br><small>Pro 10 000 · Super 30 000 so'm</small></div></div>
+<button class=b onclick="if(confirm('?')){S.xp=0;S.k={};sv();settings()}">♻️ ${tr("reset")}</button>`}
+function st(k){S.th=k;sv();ap();settings()}function sl(k){S.lg=k;sv();settings()}
+function premium(){A.innerHTML=`<button class=b onclick="nav('settings')">⬅️</button><h2>${IC.crown.replace(/32/g,24)} ${tr("prem")}</h2>${PL.map((p,i)=>`<div class="plan ${p.c}" style="animation-delay:${i*.15}s"><div class=pl>${p.i}</div><h3>${p.n}</h3><div class=pr>${p.p} so'm<small> / oy</small></div><ul>${p.f.map(f=>`<li>✔ ${f}</li>`).join("")}</ul><button class="b m" onclick="buy('${p.n}')">💳 ${tr("buy")}</button></div>`).join("")}`}
+const nav=t=>{({home,words,lessons,listen,speak,test,more,contact,settings,premium,reading,review,game,search,ai:aip})[t]();const g=t=="contact"?"contact":t=="ai"?"ai":(t=="settings"||t=="premium")?"settings":"home";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t==g));if(!["home","contact","settings","premium","ai"].includes(t))A.insertAdjacentHTML("afterbegin",`<button class=b onclick="nav('home')">🏠 ${tr("home")}</button>`);window.scrollTo(0,0)};
+
+IC.ai=SV('<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>');document.querySelector("nav").innerHTML=`<button data-t="home" class="on" onclick="nav('home')">${IC.home}</button><button data-t="contact" onclick="nav('contact')">${IC.phone}</button><button data-t="ai" onclick="nav('ai')">${IC.ai}</button><button data-t="settings" onclick="nav('settings')">${IC.gear}</button>`;
+Object.assign(T.uz,{read:"O'qish",game:"O'yin",review:"Takrorlash",search:"Qidiruv"});Object.assign(T.en,{read:"Reading",game:"Game",review:"Review",search:"Search"});Object.assign(T.ru,{read:"Чтение",game:"Игра",review:"Повтор",search:"Поиск"});
+(()=>{const d=x=>new Date(x).toISOString().slice(0,10),t=d(Date.now()),y=d(Date.now()-864e5);if(S.sd!=t){S.st=S.sd==y?(S.st||0)+1:1;S.sd=t;S.tx=0;sv()}})();
+function ok(x){S.xp+=x;S.tx=(S.tx||0)+x;sv()}
+const lvl=()=>{const l=Math.floor(S.xp/100)+1;return[l,["Beginner","Explorer","Learner","Speaker","Master","Legend"][Math.min(5,Math.floor((l-1)/2))]]};
+const BD=[["🌱","1 so'z",()=>nk()>=1],["📗","50 so'z",()=>nk()>=50],["📘","100 so'z",()=>nk()>=100],["🏆","250 so'z",()=>nk()>=250],["🔥","3 kun",()=>S.st>=3],["⚡","7 kun",()=>S.st>=7],["⭐","100 XP",()=>S.xp>=100],["💎","500 XP",()=>S.xp>=500]];
+const bdg=()=>`<div class=sec><b>🏅 Yutuqlar</b><div class=sw style="gap:6px">${BD.map(b=>`<div style="text-align:center;width:22%;opacity:${b[2]()?1:.25}"><div style="font-size:30px">${b[0]}</div><small>${b[1]}</small></div>`).join("")}</div></div>`;
+function home(){const p=Math.round(nk()/tot*100),[l,n]=lvl(),wd=Object.values(W).flat()[Math.floor(Date.now()/864e5)%tot],g=Math.min(100,(S.tx||0)*2);
+A.innerHTML=`<div class=hd><div class=logo>${IC.cap}</div><div><h1>English Master</h1><span class=xp>⭐ ${S.xp} XP · Lv ${l} ${n}</span></div></div>
+<div class=sec style="display:flex;justify-content:space-between"><div>🔥 <b>${S.st||1}</b> kun</div><div>🎯 ${S.tx||0}/50 XP</div></div><div class=bar><i style="width:${g}%"></i></div>
+<div class=sec onclick="say('${wd[0]}')"><small>💡 Kun so'zi</small><div class=big style="margin:4px 0">${wd[0]} 🔊</div><small>${wd[1]}</small></div>
+<p class=s>${tr("words")}: ${nk()}/${tot}</p><div class=bar><i style="width:${p}%"></i></div><div class=grid>${[["words","📖",tot+" ta"],["lessons","📚",L.length+" ta"],["listen","🎧",D.length+" dialog"],["speak","🎤",PH.length+" gap"],["reading","📰",RD.length+" matn"],["test","📝","kalitlari bilan"],["review","🔁","takrorlash"],["game","🎮","juftini top"],["search","🔍","so'z qidirish"],["more","📕","links"]].map((c,i)=>`<div class=card style="animation-delay:${i*.06}s" onclick="nav('${c[0]}')"><div class=ic style="background:linear-gradient(135deg,${GR[i%6][0]},${GR[i%6][1]})">${c[1]}</div><b>${tr(c[0]=="more"?"books":c[0]=="reading"?"read":c[0])}</b><small>${c[2]}</small></div>`).join("")}</div>`}
+const RD=[{t:"My Day",e:"I get up at seven. I eat breakfast with my family. Then I go to school by bus. I study English and maths. After school I play football with my friends. In the evening I do my homework and read a book.",u:"Men soat yettida turaman. Oila bilan nonushta qilaman. Keyin avtobusda maktabga boraman. Ingliz tili va matematikani o'rganaman. Maktabdan keyin do'stlarim bilan futbol o'ynayman. Kechqurun uyga vazifa qilaman va kitob o'qiyman.",q:[["What time does he get up?","seven","eight","six",0],["How does he go to school?","by bus","by car","on foot",0],["What does he do in the evening?","plays football","does homework","sleeps",1]]},
+{t:"A Trip to Samarkand",e:"Last summer we visited Samarkand. We travelled by train and it took three hours. We stayed in a small hotel near the Registan. The weather was hot, but the city was beautiful. We bought some bread and fruit at the market.",u:"O'tgan yozda Samarqandga bordik. Poyezdda ketdik va uch soat ketdi. Registon yaqinidagi kichik mehmonxonada qoldik. Havo issiq edi, lekin shahar chiroyli edi. Bozordan non va meva sotib oldik.",q:[["How did they travel?","by plane","by train","by bus",1],["Where did they stay?","in a hotel","with friends","in a tent",0],["How was the weather?","cold","rainy","hot",2]]},
+{t:"My Friend Anna",e:"Anna is my best friend. She is twelve years old and she lives in London. She has a cat called Milo. She can speak three languages. Next year she is going to visit me in Tashkent.",u:"Anna mening eng yaqin do'stim. U o'n ikki yoshda va Londonda yashaydi. Uning Milo ismli mushugi bor. U uchta tilda gapira oladi. Kelasi yil u Toshkentga mening oldimga keladi.",q:[["How old is Anna?","ten","twelve","fourteen",1],["What is her cat's name?","Milo","Max","Tom",0],["How many languages can she speak?","two","three","four",1]]}];
+function reading(){A.innerHTML=`<h2>📰 ${tr("read")}</h2>${RD.map((r,i)=>`<div class=row onclick="rd(${i})"><b>${r.t}</b>➡️</div>`).join("")}`}
+function rd(i){const r=RD[i];ok(5);A.innerHTML=`<button class=b onclick="nav('reading')">⬅️</button><h2>${r.t}</h2><div class=txt>${r.e}</div><button class=b onclick="sayL(RD[${i}].e)">🔊 Tinglash</button><button class=b onclick="document.getElementById('uz').hidden=!document.getElementById('uz').hidden">🇺🇿 Tarjima</button><div class=txt id=uz hidden>${r.u}</div><button class="b m" onclick="rq(${i})">📝 Savollar</button>`}
+function rq(i){run(RD[i].q.map(g=>({q:g[0],o:R(g.slice(1,4)),a:g[1+g[4]],x:"",h:"Reading: javobni tanlang"})),0,[])}
+let RV=[];
+function review(){RV=R(Object.values(W).flat().filter(w=>!S.k[w[0]])).slice(0,10);rv(0)}
+function rv(n){if(n>=RV.length){ok(10);cf();return A.innerHTML=`<h1>🏆</h1><p>+10 XP</p><button class="b m" onclick="review()">🔁 Yana</button>`}const w=RV[n];A.innerHTML=`<p class=s>${n+1}/${RV.length}</p><div class=big onclick="say('${w[0]}')">${w[0]} 🔊</div><div class=big id=tw hidden>${w[1]}</div><button class="b m" onclick="document.getElementById('tw').hidden=false">👁 Tarjimani ko'rish</button><button class=b onclick="S.k['${w[0]}']=1;ok(2);rv(${n+1})">✅ Bilaman</button><button class=b onclick="rv(${n+1})">❌ Yana takrorlayman</button>`}
+let GM;function game(){const p=R(Object.values(W).flat()).slice(0,6);GM={c:R(p.flatMap((w,i)=>[{i,t:w[0]},{i,t:w[1]}])),o:[],m:0,mv:0,lk:0};dg()}
+function dg(){A.innerHTML=`<h2>🎮 ${tr("game")}</h2><p class=s>Inglizcha va o'zbekcha juftini toping · Yurish: ${GM.mv}</p><div class=grid style="grid-template-columns:repeat(3,1fr)">${GM.c.map((x,k)=>`<div class="card gm ${x.d?"dn":GM.o.includes(k)?"op":""}" onclick="gp(${k})"><b>${x.d||GM.o.includes(k)?x.t:"❓"}</b></div>`).join("")}</div>`}
+function gp(k){if(GM.lk||GM.c[k].d||GM.o.includes(k))return;GM.o.push(k);if(GM.o.length==2){GM.mv++;const[a,b]=GM.o;if(GM.c[a].i==GM.c[b].i){GM.c[a].d=GM.c[b].d=1;GM.o=[];GM.m++;ok(3)}else{GM.lk=1;dg();setTimeout(()=>{GM.o=[];GM.lk=0;dg()},800);return}}dg();if(GM.m==6){ok(10);cf();A.insertAdjacentHTML("beforeend",`<h2>🏆 ${GM.mv} yurishda!</h2><button class="b m" onclick="game()">🔁 Yana</button>`)}}
+function search(){A.innerHTML=`<h2>🔍 ${tr("search")}</h2><input class=in placeholder="apple / olma" oninput="sq(this.value)"><div id=sr></div>`}
+function sq(v){v=v.trim().toLowerCase();document.getElementById("sr").innerHTML=v?Object.values(W).flat().filter(w=>w[0].toLowerCase().includes(v)||w[1].toLowerCase().includes(v)).slice(0,40).map(w=>`<div class=row onclick="say(this.dataset.t)" data-t="${w[0]}"><div><b>${w[0]}</b> 🔊<br><small>${w[1]}</small></div></div>`).join(""):""}
+
+function aip(){const C=[["ai_tutor","👋","Tanishuv"],["ai_grammar","📚","Grammatikani tushuntir"],["ai_words","🔤","10 ta yangi so'z"],["ai_speak","🎤","Suhbat mashqi"],["ai_fix","✏️","Xatolarimni tuzat"],["ai_translate","🌍","Tarjimon"]];
+A.innerHTML=`<div class="sec ct"><div class="logo ai" style="margin:0 auto">${IC.ai}</div><h2>AI Ustoz</h2><p class=s>Istalgan tilda so'rang: o'zbek, rus, ingliz, turk, arab...<br>Darslarni tushuntiradi, tarjima qiladi, xatolaringizni tuzatadi.</p><div style="font-size:26px;letter-spacing:6px">🇺🇿🇬🇧🇷🇺🇹🇷🇸🇦🇨🇳</div></div>
+<div class=grid>${C.map((c,i)=>`<div class=card style="animation-delay:${i*.07}s" onclick="aio('${c[0]}')"><div class=ic style="background:linear-gradient(135deg,${GR[i%6][0]},${GR[i%6][1]})">${c[1]}</div><b>${c[2]}</b></div>`).join("")}</div>
+<button class="b m" onclick="aio('')">💬 Suhbatni boshlash</button><p class=s style="text-align:center">Kuniga 15 ta savol bepul · 💎 Premium'da cheksiz</p>`}
+function aio(p){const u="https://t.me/Anglish_Master_bot"+(p?"?start="+p:"");tg?.openTelegramLink?tg.openTelegramLink(u):window.open(u,"_blank")}
+
+ap();home();
+</script></body></html>

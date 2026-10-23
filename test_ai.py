@@ -1,0 +1,3 @@
+BOT_TOKEN=8843378583:AAE6-OXek8H-Q_oT4DfOv6yCQ3f_yNHkHOs
+GEMINI_API_KEY=AQ.Ab8RN6Kkf5KlMXlozE71iyGr82vXTgJdKgKC1kbjuRZjSRj7uQ
+WEBAPP_URL=https://english-master-uz.netlify.app
