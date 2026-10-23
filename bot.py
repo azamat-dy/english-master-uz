@@ -23,10 +23,10 @@ ai_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         )
     ]
 ])
- "ai_words": "Teach me 10 useful English words for beginners with Uzbek translations and one example sentence each.",
- "ai_speak": "Start a simple A1 English speaking practice with me. Ask one short question in English with its Uzbek translation and wait for my answer.",
- "ai_fix": "Explain in Uzbek that I can send you my English sentences and you will correct my mistakes. Show 2 examples of corrections.",
- "ai_translate": "Explain in Uzbek that I can send any sentence in Uzbek, Russian or English and you will translate it and explain it. Show 2 examples.",
+"ai_words": "Teach me 10 useful English words for beginners with Uzbek translations and one example sentence each.",
+"ai_speak": "Start a simple A1 English speaking practice with me. Ask one short question in English with its Uzbek translation and wait for my answer.",
+"ai_fix": "Explain in Uzbek that I can send you my English sentences and you will correct my mistakes. Show 2 examples of corrections.",
+"ai_translate": "Explain in Uzbek that I can send any sentence in Uzbek, Russian or English and you will translate it and explain it. Show 2 examples.",
 }
 r = Router()
 
