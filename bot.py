@@ -354,9 +354,24 @@ async def ai_cmd(m: Message):
 async def any_text(m: Message):
     await ask_ai(m, m.text)
 
+async def handle(request):
+    return web.Response(text="Bot is running!")
+
 async def main():
     logging.basicConfig(level=logging.INFO); await db_init()
     bot = Bot(BOT_TOKEN); dp = Dispatcher(); dp.include_router(r)
+
+    # Render port talab qilgani uchun soxta veb-server
+    app = web.Application()
+    app.router.add_get("/", handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    
+    port = int(os.environ.get("PORT", 8080))
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
+    # Botni ishga tushirish
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
