@@ -12,6 +12,8 @@ from aiogram.types import (Message, CallbackQuery, InlineKeyboardMarkup as KB,
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 WEBAPP_URL = os.getenv("WEBAPP_URL", "https://azamat-ai.netlify.app")
+MAIN_SITE_URL = "https://english-master-uz.netlify.app/"
+
 GKEY = os.getenv("GEMINI_API_KEY", "")
 GMODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 DB = "progress.db"
@@ -110,10 +112,13 @@ async def mark(uid, unit, kind, score=0):
 
 # ───────────────────────── MENYU ─────────────────────────
 def main_menu():
-    rows = [[Btn(text="📚 Darslar", callback_data="units")],
-            [Btn(text="🤖 AI Ustoz", web_app=WebAppInfo(url="https://azamat-ai.netlify.app"))],
-            [Btn(text="📝 Testlar", callback_data="tests"), Btn(text="🎤 Speaking", callback_data="speaks")],
-            [Btn(text="📖 Darsliklar", callback_data="books"), Btn(text="🏆 Natijam", callback_data="me")]]
+    rows = [
+        [Btn(text="🤖 AI Ustoz", web_app=WebAppInfo(url=WEBAPP_URL))],
+        [Btn(text="🌐 English Master Sayt", web_app=WebAppInfo(url=MAIN_SITE_URL))],
+        [Btn(text="📚 Darslar", callback_data="units")],
+        [Btn(text="📝 Testlar", callback_data="tests"), Btn(text="🎤 Speaking", callback_data="speaks")],
+        [Btn(text="📖 Darsliklar", callback_data="books"), Btn(text="🏆 Natijam", callback_data="me")]
+    ]
     return KB(inline_keyboard=rows)
 
 async def typing_anim(msg: Message, frames):
