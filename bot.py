@@ -1,3 +1,5 @@
+import os
+from aiohttp import web
 import asyncio, os, logging
 import aiosqlite
 from dotenv import load_dotenv
