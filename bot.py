@@ -4,12 +4,13 @@ from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import (Message, InlineKeyboardMarkup as KB, InlineKeyboardButton as Btn,
-                           WebAppInfo, MenuButtonWebApp)
+                          WebAppInfo, MenuButtonWebApp)
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 LEARN_URL = os.getenv("LEARN_URL", "https://english-master-uz.netlify.app/")   # 1-sahifa: darslar
-AI_URL = os.getenv("AI_URL", "https://azamat-ai.netlify.app/")                 # 2-sahifa: AI Ustoz
+AI_URL = os.getenv("AI_URL", "https://azamat-ai.netlify.app/")               # 2-sahifa: AI Ustoz
+MUSIC_URL = os.getenv("MUSIC_URL", "https://www.youtube.com/")               # 3-sahifa: English Master Music
 r = Router()
 
 
@@ -17,6 +18,7 @@ def menu():
     return KB(inline_keyboard=[
         [Btn(text="📚 English Master", web_app=WebAppInfo(url=LEARN_URL))],
         [Btn(text="🤖 AI Ustoz", web_app=WebAppInfo(url=AI_URL))],
+        [Btn(text="🎵 English Master Music", web_app=WebAppInfo(url=MUSIC_URL))],
     ])
 
 
@@ -58,7 +60,7 @@ async def main():
     except Exception as e:
         logging.warning("Menu tugmasi o'rnatilmadi: %s", e)
     dp = Dispatcher(); dp.include_router(r)
-    print("Bot ishga tushdi. Darslar:", LEARN_URL, "| AI:", AI_URL)
+    print("Bot ishga tushdi. Darslar:", LEARN_URL, "| AI:", AI_URL, "| Music:", MUSIC_URL)
     await dp.start_polling(bot)
 
 
