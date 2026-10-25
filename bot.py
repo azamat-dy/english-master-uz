@@ -1,35 +1,54 @@
-import os
-from aiohttp import web
-import asyncio, logging, io, base64
+import asyncio, os, logging, time, html, hmac, hashlib
+from urllib.parse import quote
 import aiosqlite
-from datetime import date
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import CommandStart, Command, CommandObject
 from aiogram.types import (Message, CallbackQuery, InlineKeyboardMarkup as KB,
-                         InlineKeyboardButton as Btn, BufferedInputFile, WebAppInfo)
+                           InlineKeyboardButton as Btn, BufferedInputFile, WebAppInfo)
 
 load_dotenv()
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-WEBAPP_URL = os.getenv("WEBAPP_URL", "https://azamat-ai.netlify.app")
-MAIN_SITE_URL = "https://english-master-uz.netlify.app/"
-
-GKEY = os.getenv("GEMINI_API_KEY", "")
-GMODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+BOT_TOKEN, WEBAPP_URL = os.getenv("BOT_TOKEN"), os.getenv("WEBAPP_URL")
 DB = "progress.db"
+CHANNEL = os.getenv("CHANNEL", "@English_Master_uz")
+PRIZE = os.getenv("PRIZE", "🎁 Oyning eng faol foydalanuvchisiga sovg'a!")
+SHARE = "https://t.me/share/url?url=" + quote("https://t.me/Anglish_Master_bot") + "&text=" + quote("English Master — ingliz tilini bepul o'rgan! 🎓")
 
-SYS = "You are a helpful AI English teacher for Uzbek speakers. Explain things clearly in Uzbek and English."
-PRESET = {}
-HIST = {}
-USED = {}
-PREMIUM = []
-AI_LIMIT = 20
-AI = None
-AI_MODEL = ""
-
+# ───────────────────────── AI USTOZ (Claude) ─────────────────────────
+try:
+    from anthropic import AsyncAnthropic
+except ImportError:
+    AsyncAnthropic = None
+import aiohttp, io, base64
+from datetime import date
+AI_KEY = os.getenv("ANTHROPIC_API_KEY")
+AI = AsyncAnthropic(api_key=AI_KEY) if (AI_KEY and AsyncAnthropic) else None
+GKEY = os.getenv("GEMINI_API_KEY")                       # BEPUL: aistudio.google.com/app/apikey
+GMODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+AI_MODEL = os.getenv("AI_MODEL", "claude-haiku-5-5")
+AI_LIMIT = int(os.getenv("AI_DAILY_LIMIT", "15"))          # bepul foydalanuvchi uchun kunlik savollar
+PREMIUM = {int(x) for x in os.getenv("PREMIUM_IDS", "").split(",") if x.strip()}  # cheksiz foydalanuvchilar ID si
+HIST, USED = {}, {}
+SYS = ("You are 'English Master AI', a friendly, patient English tutor inside a Telegram bot for learners "
+       "from Beginner (A1) to Elementary (A2). ALWAYS reply in the language the student writes in "
+       "(Uzbek, Russian, English, Turkish, Arabic or any other). If unclear, use Uzbek. "
+       "Explain English lessons (grammar, vocabulary, pronunciation, reading, speaking) in simple words, "
+       "with short examples and translation into the student's language. Correct mistakes gently and show "
+       "the correct version. Keep answers concise (under ~200 words) and use simple A1-A2 English in examples. "
+       "You may help with other topics too, but steer back to learning English when natural. "
+       "Never invent facts; if unsure, say so.")
+PRESET = {
+ "ai_tutor": "Hi! Introduce yourself briefly in Uzbek and ask what I want to learn today.",
+ "ai_grammar": "Explain Present Simple for a beginner in Uzbek with 5 short examples and translations, then give 3 practice sentences.",
+ "ai_words": "Teach me 10 useful English words for beginners with Uzbek translations and one example sentence each.",
+ "ai_speak": "Start a simple A1 English speaking practice with me. Ask one short question in English with its Uzbek translation and wait for my answer.",
+ "ai_fix": "Explain in Uzbek that I can send you my English sentences and you will correct my mistakes. Show 2 examples of corrections.",
+ "ai_translate": "Explain in Uzbek that I can send any sentence in Uzbek, Russian or English and you will translate it and explain it. Show 2 examples.",
+}
 r = Router()
 
 # ───────────────────────── DARS MAZMUNI (A1 → A2) ─────────────────────────
+# quiz: (savol, [variantlar], to'g'ri_indeks, izoh)
 UNITS = [
  {"t": "1. Alphabet & Greetings", "lv": "A1",
   "lesson": "👋 *Salomlashish*\n\nHello / Hi — Salom\nGood morning — Xayrli tong\nGood afternoon — Xayrli kun\nGood evening — Xayrli kech\nGoodbye / Bye — Xayr\n\n❓ How are you? — Ishlaringiz qalay?\n✅ I'm fine, thank you. And you?\n\n🔤 Alifbo: A B C D E F G H I J K L M N O P Q R S T U V W X Y Z (26 harf: 5 unli — A E I O U)",
@@ -98,27 +117,37 @@ TEXTBOOKS = [("📘 British Council LearnEnglish (A1–A2)","https://learnenglis
 async def db_init():
     async with aiosqlite.connect(DB) as d:
         await d.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,name TEXT,xp INTEGER DEFAULT 0)")
+        await d.execute("CREATE TABLE IF NOT EXISTS xplog(uid INTEGER,name TEXT,xp INTEGER,ts INTEGER)")
         await d.execute("CREATE TABLE IF NOT EXISTS done(uid INTEGER,unit INTEGER,kind TEXT,score INTEGER DEFAULT 0,PRIMARY KEY(uid,unit,kind))")
         await d.commit()
 
 async def add_xp(uid, name, xp):
     async with aiosqlite.connect(DB) as d:
         await d.execute("INSERT INTO users(id,name,xp) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET xp=xp+?,name=?", (uid,name,xp,xp,name))
+        await d.execute("INSERT INTO xplog VALUES(?,?,?,?)", (uid, name, xp, int(time.time())))
         await d.commit()
 
 async def mark(uid, unit, kind, score=0):
     async with aiosqlite.connect(DB) as d:
         await d.execute("INSERT OR REPLACE INTO done VALUES(?,?,?,?)", (uid,unit,kind,score)); await d.commit()
 
+async def get_progress(uid):
+    async with aiosqlite.connect(DB) as d:
+        xp = (await (await d.execute("SELECT xp FROM users WHERE id=?", (uid,))).fetchone() or [0])[0]
+        rows = await (await d.execute("SELECT unit,kind,score FROM done WHERE uid=?", (uid,))).fetchall()
+        top = await (await d.execute("SELECT name,xp FROM users ORDER BY xp DESC LIMIT 5")).fetchall()
+    return xp, rows, top
+
 # ───────────────────────── MENYU ─────────────────────────
 def main_menu():
-    rows = [
-        [Btn(text="🤖 AI Ustoz", web_app=WebAppInfo(url=WEBAPP_URL))],
-        [Btn(text="🌐 English Master Sayt", web_app=WebAppInfo(url=MAIN_SITE_URL))],
-        [Btn(text="📚 Darslar", callback_data="units")],
-        [Btn(text="📝 Testlar", callback_data="tests"), Btn(text="🎤 Speaking", callback_data="speaks")],
-        [Btn(text="📖 Darsliklar", callback_data="books"), Btn(text="🏆 Natijam", callback_data="me")]
-    ]
+    rows = [[Btn(text="📚 Darslar", callback_data="units")],
+            [Btn(text="🤖 AI ustoz (barcha tilda)", callback_data="ai")],
+            [Btn(text="📝 Testlar", callback_data="tests"), Btn(text="🎤 Speaking", callback_data="speaks")],
+            [Btn(text="📖 Darsliklar", callback_data="books"), Btn(text="🏆 Natijam", callback_data="me")],
+            [Btn(text="📊 Statistika va reyting", callback_data="stats")],
+            [Btn(text="📣 Do'stlarga ulashish", url=SHARE)],
+            [Btn(text="📢 Kanalimiz", url=f"https://t.me/{CHANNEL.lstrip('@')}")]]
+    if WEBAPP_URL: rows.insert(0, [Btn(text="✨ Mini App (animatsiyali)", callback_data="app")])
     return KB(inline_keyboard=rows)
 
 async def typing_anim(msg: Message, frames):
@@ -141,7 +170,7 @@ async def gcall(body):
                     return "".join(p.get("text", "") for p in parts).strip()
                 last = f"{mdl}: {r.status} {data.get('error', {}).get('message', '')}"
                 logging.warning("Gemini xato: %s", last)
-                if r.status not in (400, 404):
+                if r.status not in (400, 404):      # 429 limit yoki 403 — boshqa model yordam bermaydi
                     break
     raise RuntimeError(last)
 
@@ -150,13 +179,17 @@ async def gemini(h):
             "contents": [{"role": "user" if x["role"] == "user" else "model", "parts": [{"text": x["content"]}]} for x in h]}
     return await gcall(body)
 
+async def claude(h):
+    resp = await AI.messages.create(model=AI_MODEL, max_tokens=800, system=SYS, messages=h)
+    return "".join(b.text for b in resp.content if b.type == "text").strip()
+
 async def ask_ai(m: Message, text: str):
     uid = m.from_user.id
-    if not GKEY:
-        return await m.answer("🤖 AI hali yoqilmagan (GEMINI_API_KEY kiritilmagan).")
+    if not (GKEY or AI):
+        return await m.answer("🤖 AI hali yoqilmagan (.env ga GEMINI_API_KEY yoki ANTHROPIC_API_KEY kerak).")
     k = (uid, date.today().isoformat())
     if uid not in PREMIUM and USED.get(k, 0) >= AI_LIMIT:
-        return await m.answer(f"⏳ Bugungi bepul limit ({AI_LIMIT} ta savol) tugadi.")
+        return await m.answer(f"⏳ Bugungi bepul limit ({AI_LIMIT} ta savol) tugadi.\n💎 Cheksiz AI uchun Premium: @muhammadjonov001")
     USED[k] = USED.get(k, 0) + 1
     h = HIST.setdefault(uid, [])
     h.append({"role": "user", "content": text[:2000]})
@@ -165,13 +198,25 @@ async def ask_ai(m: Message, text: str):
         h.pop(0)
     await m.bot.send_chat_action(m.chat.id, "typing")
     try:
-        out = (await gemini(h)) or "..."
+        out = (await gemini(h) if GKEY else await claude(h)) or "..."
     except Exception as e:
         logging.warning("AI xato: %s", e); h.pop()
-        return await m.answer("😔 AI hozir javob bera olmadi, birozdan keyin urinib ko'ring.")
+        dbg = f"\n\n🛠 {str(e)[:200]}" if os.getenv("DEBUG", "1") != "0" else ""
+        return await m.answer("😔 AI hozir javob bera olmadi, birozdan keyin urinib ko'ring." + dbg)
     h.append({"role": "assistant", "content": out})
     await add_xp(uid, m.from_user.full_name, 2)
     await m.answer(out[:4000])
+
+@r.message(CommandStart(deep_link=True))
+async def start_dl(m: Message, command: CommandObject):
+    if command.args == "app":
+        return await send_app(m, m.from_user.id)
+    if command.args == "stats":
+        return await m.answer(await stats_text(), parse_mode="HTML")
+    if (command.args or "") in PRESET:
+        await m.answer("🤖 AI ustoz o'ylayapti...")
+        return await ask_ai(m, PRESET[command.args])
+    await start(m)
 
 @r.message(CommandStart())
 async def start(m: Message):
@@ -179,8 +224,8 @@ async def start(m: Message):
     s = await m.answer("🎓")
     await typing_anim(s, ["🎓 E", "🎓 English", "🎓 English with me", "🎓 English with me ✨"])
     await m.answer(f"Salom, *{m.from_user.first_name}*! 👋\n\nBu bot seni *Beginner (A1) → Elementary (A2)* darajasigacha olib boradi.\n\n"
-                    "📚 8 ta dars · 📝 test + kalitlar · 🎤 speaking · 📖 darsliklar\n\nBoshlaymizmi? 👇",
-                    parse_mode="Markdown", reply_markup=main_menu())
+                   "📚 8 ta dars · 📝 test + kalitlar · 🎤 speaking · 📖 darsliklar\n\nBoshlaymizmi? 👇",
+                   parse_mode="Markdown", reply_markup=main_menu())
 
 @r.message(Command("menu"))
 async def menu(m: Message): await m.answer("🏠 Bosh menyu:", reply_markup=main_menu())
@@ -206,7 +251,8 @@ async def speaks(c: CallbackQuery):
 @r.callback_query(F.data == "books")
 async def books(c: CallbackQuery):
     rows = [[Btn(text=n, url=u)] for n, u in TEXTBOOKS] + [[Btn(text="⬅️ Menyu", callback_data="home")]]
-    await c.message.edit_text("📖 *Beginner uchun bepul darsliklar*:", parse_mode="Markdown", reply_markup=KB(inline_keyboard=rows)); await c.answer()
+    await c.message.edit_text("📖 *Beginner uchun bepul darsliklar* (Google'da mutaxassislar tayyorlagan rasmiy manbalar):",
+                              parse_mode="Markdown", reply_markup=KB(inline_keyboard=rows)); await c.answer()
 
 # ───────────────────────── DARS ─────────────────────────
 @r.callback_query(F.data.startswith("u:"))
@@ -214,14 +260,14 @@ async def unit(c: CallbackQuery):
     i = int(c.data[2:]); u = UNITS[i]
     words = "\n".join(f"• *{e}* — {z}" for e, z in u["words"])
     kb = KB(inline_keyboard=[[Btn(text="🔊 So'zlarni tinglash", callback_data=f"v:{i}")],
-                            [Btn(text="📝 Testga o'tish", callback_data=f"t:{i}"), Btn(text="🎤 Speaking", callback_data=f"s:{i}")],
-                            [Btn(text="⬅️ Darslar", callback_data="units")]])
+                             [Btn(text="📝 Testga o'tish", callback_data=f"t:{i}"), Btn(text="🎤 Speaking", callback_data=f"s:{i}")],
+                             [Btn(text="⬅️ Darslar", callback_data="units")]])
     await c.message.edit_text(f"*{u['t']}*  `{u['lv']}`\n\n{u['lesson']}\n\n🗂 *So'zlar:*\n{words}", parse_mode="Markdown", reply_markup=kb)
     await mark(c.from_user.id, i, "lesson"); await add_xp(c.from_user.id, c.from_user.full_name, 5); await c.answer("+5 XP ⭐")
 
 async def tts(text):
     try:
-        from gtts import gTTS
+        from gtts import gTTS; import io
         def gen():
             b = io.BytesIO(); gTTS(text, lang="en").write_to_fp(b); return b.getvalue()
         return BufferedInputFile(await asyncio.to_thread(gen), "audio.mp3")
@@ -259,7 +305,7 @@ async def answer(c: CallbackQuery):
     await c.message.edit_text(f"{emoji} *Natija: {score}/{n}*\n\n🔑 *Test kalitlari:*\n{key}", parse_mode="Markdown",
         reply_markup=KB(inline_keyboard=[[Btn(text="🔁 Qayta", callback_data=f"t:{i}"), Btn(text="⬅️ Testlar", callback_data="tests")]]))
     await mark(c.from_user.id, i, "test", score); await add_xp(c.from_user.id, c.from_user.full_name, score * 10)
-    try: await c.message.answer_dice(emoji="🎉" if score == n else "🎯")
+    try: await c.message.answer_dice(emoji="🎉" if score == n else "🎯")   # animatsion dice
     except Exception: pass
 
 # ───────────────────────── SPEAKING ─────────────────────────
@@ -270,7 +316,7 @@ async def speak(c: CallbackQuery):
     SPK_STATE[c.from_user.id] = i
     ph = UNITS[i]["speak"]
     await c.message.answer(f"🎤 *Speaking — {UNITS[i]['t']}*\n\n1️⃣ Gapni tinglang 🔊\n2️⃣ Takrorlab *ovozli xabar* yuboring 🎙\n\n" +
-                          "\n".join(f"▫️ _{p}_" for p in ph), parse_mode="Markdown")
+                           "\n".join(f"▫️ _{p}_" for p in ph), parse_mode="Markdown")
     for p in ph:
         a = await tts(p)
         if a: await c.message.answer_voice(a, caption=p)
@@ -286,24 +332,21 @@ async def got_voice(m: Message):
             body = {"system_instruction": {"parts": [{"text": SYS}]},
                     "contents": [{"role": "user", "parts": [
                         {"inline_data": {"mime_type": "audio/ogg", "data": base64.b64encode(buf.getvalue()).decode()}},
-                        {"text": "This is my English speaking practice (voice message). 1) Write what I said. 2) Give short feedback on pronunciation and grammar. Answer in Uzbek, briefly."}]}]}
+                        {"text": "This is my English speaking practice (voice message). 1) Write what I said. 2) Give short feedback on pronunciation and grammar and show the corrected sentence. 3) Give a score from 0 to 100. Answer in Uzbek, briefly."}]}]}
             fb = await gcall(body)
         except Exception as e:
             logging.warning("Voice AI xato: %s", e)
     if fb:
         await s.edit_text("🎤 " + fb[:4000])
     else:
-        await s.edit_text("✅ Ovozingiz qabul qilindi. +15 XP ⭐")
+        await s.edit_text("✅ Ovozingiz qabul qilindi. +15 XP ⭐\n(AI tekshiruvi hozir ishlamadi.)")
     if i is not None: await mark(m.from_user.id, i, "speak", 1)
     await add_xp(m.from_user.id, m.from_user.full_name, 15)
 
 # ───────────────────────── NATIJA ─────────────────────────
 @r.callback_query(F.data == "me")
 async def me(c: CallbackQuery):
-    async with aiosqlite.connect(DB) as d:
-        xp = (await (await d.execute("SELECT xp FROM users WHERE id=?", (c.from_user.id,))).fetchone() or [0])[0]
-        rows = await (await d.execute("SELECT unit,kind,score FROM done WHERE uid=?", (c.from_user.id,))).fetchall()
-        top = await (await d.execute("SELECT name,xp FROM users ORDER BY xp DESC LIMIT 5")).fetchall()
+    xp, rows, top = await get_progress(c.from_user.id)
     L = sum(1 for _, k, _ in rows if k == "lesson"); T = [s for _, k, s in rows if k == "test"]; S = sum(1 for _, k, _ in rows if k == "speak")
     pct = int((L + len(T) + S) / (len(UNITS) * 3) * 100)
     bar = "█" * (pct // 10) + "░" * (10 - pct // 10)
@@ -311,26 +354,111 @@ async def me(c: CallbackQuery):
     await c.message.edit_text(f"🏆 *Natijangiz*\n\n⭐ XP: *{xp}*\n📈 [{bar}] {pct}%\n📚 Darslar: {L}/{len(UNITS)}\n📝 Testlar: {len(T)}/{len(UNITS)}\n🎤 Speaking: {S}/{len(UNITS)}\n\n🥇 *Top 5:*\n{lb}",
         parse_mode="Markdown", reply_markup=KB(inline_keyboard=[[Btn(text="⬅️ Menyu", callback_data="home")]])); await c.answer()
 
+@r.callback_query(F.data == "ai")
+async def ai_cb(c: CallbackQuery):
+    await c.message.answer("🤖 *AI ustoz*\n\nIstalgan tilda yozing: savol, tarjima, grammatika yoki darsni tushuntirish so'rang. Inglizcha gapingizni yuborsangiz, xatolarini tuzataman.", parse_mode="Markdown")
+    await c.answer()
+
+@r.message(Command("ai"))
+async def ai_cmd(m: Message):
+    await m.answer("🤖 AI ustoz tayyor! Savolingizni istalgan tilda yozing.")
+
 @r.message(F.text & ~F.text.startswith("/"))
 async def any_text(m: Message):
     await ask_ai(m, m.text)
 
-async def handle(request):
-    return web.Response(text="Bot is running!")
+# ───────────────────────── KANALGA MAJBURIY OBUNA ─────────────────────────
+from aiogram import BaseMiddleware
+SUBS = {}
+async def is_sub(bot, uid):
+    if SUBS.get(uid, 0) > time.time(): return True
+    try:
+        ok = (await bot.get_chat_member(CHANNEL, uid)).status in ("member", "administrator", "creator")
+    except Exception as e:
+        logging.warning("Obuna tekshiruvi ishlamadi (bot kanalda ADMIN emasmi?): %s", e); return True
+    if ok: SUBS[uid] = time.time() + 600
+    return ok
+
+def gate_kb():
+    return KB(inline_keyboard=[[Btn(text="📢 Obuna bo'lish", url=f"https://t.me/{CHANNEL.lstrip('@')}")],
+                               [Btn(text="✅ Tekshirish", callback_data="chk")]])
+
+class Gate(BaseMiddleware):
+    async def __call__(self, handler, event, data):
+        u = event.from_user
+        if u and not await is_sub(data["bot"], u.id):
+            if isinstance(event, CallbackQuery):
+                if event.data == "chk":
+                    return await event.answer("❌ Siz hali obuna bo'lmadingiz. Avval «Obuna bo'lish» tugmasini bosing.", show_alert=True)
+                await event.answer("❗ Avval kanalga obuna bo'ling", show_alert=True)
+                msg = event.message
+            else:
+                msg = event
+            await msg.answer("👋 Botdan foydalanish uchun avval kanalimizga obuna bo'ling.\n\nObuna bo'lgach «✅ Tekshirish» tugmasini bosing.", reply_markup=gate_kb())
+            return
+        return await handler(event, data)
+
+r.message.outer_middleware(Gate()); r.callback_query.outer_middleware(Gate())
+
+@r.callback_query(F.data == "chk")
+async def chk(c: CallbackQuery):
+    try: await c.message.delete()
+    except Exception: pass
+    await c.message.answer("🎉 Obuna tasdiqlandi! Botga xush kelibsiz 👇", reply_markup=main_menu()); await c.answer()
+
+# ───────────────────────── STATISTIKA VA REYTING ─────────────────────────
+async def send_app(msg: Message, uid: int):
+    """Mini App faqat obuna tekshirilgandan keyin (bot Gate middleware orqali) shaxsiy havola bilan ochiladi."""
+    if not WEBAPP_URL:
+        return await msg.answer("Mini App hali ulanmagan (.env da WEBAPP_URL yo'q).")
+    ts = int(time.time())
+    sig = hmac.new(BOT_TOKEN.encode(), f"{uid}:{ts}".encode(), hashlib.sha256).hexdigest()[:16]
+    url = f"{WEBAPP_URL.rstrip('/')}/?t={ts}&u={uid}&k={sig}"
+    await msg.answer("✅ Obuna tasdiqlandi! Mini App'ni oching 👇",
+                     reply_markup=KB(inline_keyboard=[[Btn(text="🚀 Mini App'ni ochish", web_app=WebAppInfo(url=url))]]))
+
+@r.callback_query(F.data == "app")
+async def app_cb(c: CallbackQuery):
+    await send_app(c.message, c.from_user.id); await c.answer()
+
+async def stats_text():
+    now = int(time.time()); t = (now - 86400, now - 7 * 86400, now - 30 * 86400)
+    async with aiosqlite.connect(DB) as d:
+        total = (await (await d.execute("SELECT COUNT(*) FROM users")).fetchone())[0]
+        act = [(await (await d.execute("SELECT COUNT(DISTINCT uid) FROM xplog WHERE ts>?", (x,))).fetchone())[0] for x in t]
+        top = [await (await d.execute("SELECT name, SUM(xp) s FROM xplog WHERE ts>? GROUP BY uid HAVING s>0 ORDER BY s DESC LIMIT 5", (x,))).fetchall() for x in t[1:]]
+    medal = ["🥇", "🥈", "🥉", "4.", "5."]
+    fmt = lambda rows: "\n".join(f"{medal[i]} {html.escape(n or '—')} — {sc} XP" for i, (n, sc) in enumerate(rows)) or "Hali yo'q"
+    return (f"📊 <b>Statistika</b>\n\n👥 Jami foydalanuvchilar: <b>{total}</b>\n🟢 Faol: bugun {act[0]} · hafta {act[1]} · oy {act[2]}\n\n"
+            f"🏆 <b>Haftaning eng yaxshilari</b>\n{fmt(top[0])}\n\n👑 <b>Oyning eng yaxshilari</b>\n{fmt(top[1])}\n\n{html.escape(PRIZE)}")
+
+@r.callback_query(F.data == "stats")
+async def stats_cb(c: CallbackQuery):
+    await c.message.answer(await stats_text(), parse_mode="HTML"); await c.answer()
+
+@r.message(Command("stats"))
+async def stats_cmd(m: Message):
+    await m.answer(await stats_text(), parse_mode="HTML")
 
 async def main():
     logging.basicConfig(level=logging.INFO); await db_init()
+    print("=" * 46)
+    print("BOT VERSIYASI: 3 (AI + Gemini)  |  papka:", os.getcwd())
+    print("BOT_TOKEN:", "bor" if BOT_TOKEN else "YO'Q", "| GEMINI_API_KEY:", "bor" if GKEY else "YO'Q (.env da topilmadi!)")
+    if GKEY:
+        try:
+            t = await gcall({"contents": [{"parts": [{"text": "Say hello in one word"}]}]})
+            print("AI TEKSHIRUVI: ISHLAYAPTI ->", t[:40])
+        except Exception as e:
+            print("AI TEKSHIRUVI: XATO ->", str(e)[:300])
+    try:
+        from gtts import gTTS
+        await asyncio.to_thread(lambda: gTTS("hello", lang="en").write_to_fp(io.BytesIO()))
+        print("OVOZ (gTTS) TEKSHIRUVI: ISHLAYAPTI")
+    except Exception as e:
+        print("OVOZ (gTTS) TEKSHIRUVI: XATO ->", str(e)[:300])
+    print("=" * 46)
     bot = Bot(BOT_TOKEN); dp = Dispatcher(); dp.include_router(r)
-
-    app = web.Application()
-    app.router.add_get("/", handle)
-    runner = web.AppRunner(app)
-    await runner.setup()
-    
-    port = int(os.environ.get("PORT", 8080))
-    site = web.TCPSite(runner, "0.0.0.0", port)
-    await site.start()
-
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
