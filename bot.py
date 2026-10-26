@@ -4,14 +4,15 @@ from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, Router, F
 from aiogram.filters import CommandStart, Command
 from aiogram.types import (Message, CallbackQuery, InlineKeyboardMarkup as KB, InlineKeyboardButton as Btn,
-                          WebAppInfo, MenuButtonWebApp)
+                         WebAppInfo, MenuButtonWebApp)
 from aiohttp import web
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-LEARN_URL = os.getenv("LEARN_URL", "https://english-master-uz.netlify.app/")   # 1-sahifa: darslar
+LEARN_URL = os.getenv("LEARN_URL", "https://english-master-uz.netlify.app/")    # 1-sahifa: darslar
 AI_URL = os.getenv("AI_URL", "https://azamat-ai.netlify.app/")               # 2-sahifa: AI Ustoz
 MUSIC_URL = os.getenv("MUSIC_URL", "https://www.youtube.com/")               # 3-sahifa: English Master Music
+REKLAMA_URL = os.getenv("REKLAMA_URL", "https://english-reklama.netlify.app/") # 4-sahifa: English Reklama
 
 # Majburiy obuna qilinishi kerak bo'lgan kanallar ro'yxati
 CHANNELS = ["@English_Master_uz"]
@@ -23,7 +24,11 @@ def menu():
     return KB(inline_keyboard=[
         [Btn(text="📚 English Master", web_app=WebAppInfo(url=LEARN_URL))],
         [Btn(text="🤖 AI Ustoz", web_app=WebAppInfo(url=AI_URL))],
-        [Btn(text="🎵 English Master Music", web_app=WebAppInfo(url=MUSIC_URL))],
+        # 3 va 4-tugmalar bitta qatorda yonma-yon turadi (2x2 grid)
+        [
+            Btn(text="🎵 Music", web_app=WebAppInfo(url=MUSIC_URL)),
+            Btn(text="📢 Reklama", web_app=WebAppInfo(url=REKLAMA_URL))
+        ],
     ])
 
 
@@ -144,7 +149,7 @@ async def main():
     # Render uchun portni ochamiz
     await start_web_server()
     
-    print("Bot ishga tushdi. Darslar:", LEARN_URL, "| AI:", AI_URL, "| Music:", MUSIC_URL)
+    print("Bot ishga tushdi. Darslar:", LEARN_URL, "| AI:", AI_URL, "| Music:", MUSIC_URL, "| Reklama:", REKLAMA_URL)
     await dp.start_polling(bot)
 
 
